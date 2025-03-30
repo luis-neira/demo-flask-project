@@ -12,20 +12,6 @@ raw_data = Path("data.json").read_text()
 data = json.loads(raw_data)
 
 
-# def find_property_type(type):
-#     res = [
-#         r for r in data["rentals"] if r["property_type"] == type
-#     ]
-#     return res
-
-
-# def find_by_id(data, search_id):
-#     for i, item in enumerate(data):
-#         if item['id'] == search_id:
-#             return (item, i)
-#     return None
-
-
 @app.get("/rentals")
 def get_rentals():
     search_word = request.args.get("type")
