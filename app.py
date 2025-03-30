@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 
-from rental_service import RentalService
-from tenant_service import TenantService
+from services import TenantService, RentalService
 
 app = Flask(__name__)
 
