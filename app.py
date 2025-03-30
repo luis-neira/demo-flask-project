@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request, abort
 from pathlib import Path
 import json
 
+from rental_service import RentalService
+
 app = Flask(__name__)
 
 app.json.sort_keys = False
@@ -28,53 +30,53 @@ def find_by_id(data, search_id):
 def get_rentals():
     search_word = request.args.get("type")
 
+    rental_service = RentalService()
+
     if search_word == "house":
-        houses = find_property_type("house")
+        houses = rental_service.find_by_property_type("house")
         return jsonify(houses)
 
     if search_word == "apartment":
-        apartments = find_property_type("apartment")
+        apartments = rental_service.find_by_property_type("apartment")
         return jsonify(apartments)
 
-    return jsonify(data["rentals"])
+    res = rental_service.get_all_rentals()
+
+    return jsonify(res)
 
 
 @app.post("/rentals")
 def create_rental():
-    d = request.get_json()
+    data = request.get_json()
 
-    data["rentals"].append({"id": len(data["rentals"]) + 1, **d})
+    rental_service = RentalService()
 
-    return jsonify(data["rentals"][-1]), 201
+    res = rental_service.add_rental(data)
+
+    return jsonify(res), 201
 
 
 @app.delete("/rentals/<int:rental_id>")
 def delete_rental(rental_id):
-    for rental in data["rentals"]:
-        if rental["id"] == rental_id:
-            data["rentals"] = [
-                r for r in data["rentals"] if r["id"] != rental_id
-            ]
+    rental_service = RentalService()
 
-            return "", 200
+    success = rental_service.delete_rental(rental_id)
 
-    return jsonify({"error": "Resource not found."}), 404
+    if success == False:
+        return jsonify({"error": "Resource not found."}), 404
+
+    return "", 200
 
 
 @app.patch("/rentals/<int:rental_id>")
 def update_rental(rental_id):
     new_data = request.get_json()
 
-    rental, rentalIdx = find_by_id(data["rentals"], rental_id)
+    rental_service = RentalService()
 
-    if rental is None:
-        return jsonify({"error": "Resource not found."}), 404
+    res = rental_service.update_rental(rental_id, new_data)
 
-    updated_rental = {**rental, **new_data}
-
-    data["rentals"][rentalIdx] = updated_rental
-
-    return jsonify(updated_rental), 200
+    return jsonify(res), 200
 
 
 @app.get("/rentals/<int:rental_id>/tenants")
