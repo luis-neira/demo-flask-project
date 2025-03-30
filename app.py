@@ -1,15 +1,11 @@
-from flask import Flask, jsonify, request, abort
-from pathlib import Path
-import json
+from flask import Flask, jsonify, request
 
 from rental_service import RentalService
+from tenant_service import TenantService
 
 app = Flask(__name__)
 
 app.json.sort_keys = False
-
-raw_data = Path("data.json").read_text()
-data = json.loads(raw_data)
 
 
 @app.get("/rentals")
@@ -67,13 +63,17 @@ def update_rental(rental_id):
 
 @app.get("/rentals/<int:rental_id>/tenants")
 def get_tenants_by_rental_id(rental_id):
-    tenants = [
-        t for t in data["tenants"] if t["rental_id"] == rental_id
-    ]
+    tenant_service = TenantService()
 
-    return jsonify(tenants)
+    res = tenant_service.get_by_rental_id(rental_id)
+
+    return jsonify(res)
 
 
 @app.get("/tenants")
 def get_tenants():
-    return jsonify(data["tenants"])
+    tenant_service = TenantService()
+
+    res = tenant_service.get_all_tenants()
+
+    return jsonify(res)

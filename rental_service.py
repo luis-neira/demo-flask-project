@@ -1,8 +1,4 @@
-from pathlib import Path
-import json
-
-raw_data = Path("data.json").read_text()
-store = json.loads(raw_data)
+from db import store
 
 
 class RentalService:
