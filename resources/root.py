@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, g
+from flask import Blueprint, jsonify
 
 bp = Blueprint('root', __name__)
 
