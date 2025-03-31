@@ -46,11 +46,9 @@ class RentalService:
     def delete_rental(self, id):
         """ Deletes a rental from the datastore by its ID. """
 
-        for rental in self.rentals:
+        for i, rental in enumerate(self.rentals):
             if rental["id"] == id:
-                store["rentals"] = [
-                    r for r in self.rentals if r["id"] != id
-                ]
+                del self.rentals[i]
                 return True
         return False
 
