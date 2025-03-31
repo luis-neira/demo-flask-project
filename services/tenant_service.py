@@ -21,6 +21,7 @@ class TenantService:
         return self.__tenants
 
     def find(self, key: str, value: Union[int, str]) -> list[Tenant]:
+        # filter tenants by a given key
         return [
             t for t in self.__tenants if t.get(key) == value
         ]

@@ -18,6 +18,7 @@ class RentalService:
         self.__rentals = store["rentals"]
 
     def find(self, key: str, value: Union[int, str]) -> list[Rental]:
+        # filter rentals by a given key
         return [
             r for r in self.__rentals if r.get(key) == value
         ]
