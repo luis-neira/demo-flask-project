@@ -7,6 +7,14 @@ app = Flask(__name__)
 app.json.sort_keys = False
 
 
+@app.get("/")
+def health_check():
+    return jsonify({
+        "status": "API is running",
+        "available_endpoints": ["/rentals", "/tenants"]
+    })
+
+
 @app.get("/rentals")
 def get_rentals():
     query_by = request.args.get("type")
