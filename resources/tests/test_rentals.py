@@ -1,5 +1,6 @@
 import pytest
 from flask import Flask
+
 from resources import bp_rentals
 from services import RentalService, TenantService
 

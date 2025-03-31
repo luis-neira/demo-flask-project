@@ -1,6 +1,6 @@
 import pytest
 
-from db import store  # Import the store to manipulate test data
+from db import store
 from services import RentalService
 
 
@@ -41,7 +41,7 @@ def test_add_one(rental_service):
     new_rental = {"property_type": "condo", "name": "Luxury Condo"}
     added_rental = rental_service.add_one(new_rental)
 
-    assert added_rental["id"] == 3  # IDs should increment
+    assert added_rental["id"] == 3
     assert added_rental["name"] == "Luxury Condo"
     assert len(rental_service.get_all()) == 3
 

@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify, g
 
-from services import RentalService, TenantService
-
 bp = Blueprint('root', __name__)
 
 
