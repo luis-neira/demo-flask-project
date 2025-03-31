@@ -13,12 +13,14 @@ def get_rentals():
 
     rental_service = RentalService()
 
-    if search_word == "house":
-        houses = rental_service.find("property_type", "house")
+    HOUSE, APARTMENT = "house", "apartment"
+
+    if search_word == HOUSE:
+        houses = rental_service.find("property_type", HOUSE)
         return jsonify(houses)
 
-    if search_word == "apartment":
-        apartments = rental_service.find("property_type", "apartment")
+    if search_word == APARTMENT:
+        apartments = rental_service.find("property_type", APARTMENT)
         return jsonify(apartments)
 
     res = rental_service.get_all()
@@ -70,7 +72,7 @@ def update_rental(rental_id):
 def get_tenants_by_rental_id(rental_id):
     tenant_service = TenantService()
 
-    res = tenant_service.get_by_rental_id(rental_id)
+    res = tenant_service.find("rental_id", rental_id)
 
     return jsonify(res)
 
@@ -79,6 +81,6 @@ def get_tenants_by_rental_id(rental_id):
 def get_tenants():
     tenant_service = TenantService()
 
-    res = tenant_service.get_all_tenants()
+    res = tenant_service.get_all()
 
     return jsonify(res)

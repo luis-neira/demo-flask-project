@@ -9,25 +9,21 @@ from db import store
 
 
 class TenantService:
-    """
-    A service class for managing tenant records.
-
-    This class provides methods to retrieve all tenants and filter them by rental property.
-    """
+    """ A service class for managing tenant records. """
 
     def __init__(self):
         """Initializes the TenantService with tenant data from the datastore."""
 
         self.__tenants = store["tenants"]
 
-    def get_all_tenants(self):
+    def get_all(self):
         """ Retrieves all tenants from the datastore. """
 
         return self.__tenants
 
-    def get_by_rental_id(self, rental_id):
+    def find(self, key, value):
         """ Finds all tenants associated with a specific rental property. """
 
         return [
-            t for t in self.__tenants if t["rental_id"] == rental_id
+            t for t in self.__tenants if t.get(key) == value
         ]
