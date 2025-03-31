@@ -18,17 +18,16 @@ class TenantService:
     def __init__(self):
         """Initializes the TenantService with tenant data from the datastore."""
 
-        self.tenants = store["tenants"]
+        self.__tenants = store["tenants"]
 
     def get_all_tenants(self):
         """ Retrieves all tenants from the datastore. """
 
-        return self.tenants
+        return self.__tenants
 
     def get_by_rental_id(self, rental_id):
         """ Finds all tenants associated with a specific rental property. """
 
-        tenants = [
-            t for t in self.tenants if t["rental_id"] == rental_id
+        return [
+            t for t in self.__tenants if t["rental_id"] == rental_id
         ]
-        return tenants
