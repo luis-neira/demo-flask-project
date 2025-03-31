@@ -1,21 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Blueprint, request, jsonify, g
 
-from services import TenantService, RentalService
+from services import RentalService, TenantService
 
-app = Flask(__name__)
-
-app.json.sort_keys = False
+bp = Blueprint('rentals', __name__)
 
 
-@app.get("/")
-def health_check():
-    return jsonify({
-        "status": "API is running",
-        "available_endpoints": ["/rentals", "/tenants"]
-    })
-
-
-@app.get("/rentals")
+@bp.get("")
 def get_rentals():
     query_by = request.args.get("type")
 
@@ -36,7 +26,7 @@ def get_rentals():
     return jsonify(res)
 
 
-@app.post("/rentals")
+@bp.post("")
 def create_rental():
     body = request.get_json()
 
@@ -47,11 +37,11 @@ def create_rental():
     return jsonify(res), 201
 
 
-@app.delete("/rentals/<int:rental_id>")
-def delete_one_by_id(rental_id):
+@bp.delete("/<int:id>")
+def delete_rental_by_id(id):
     rental_service = RentalService()
 
-    success = rental_service.delete_one_by_id(rental_id)
+    success = rental_service.delete_one_by_id(id)
 
     if success == False:
         return jsonify({"error": "Resource not found."}), 404
@@ -59,14 +49,14 @@ def delete_one_by_id(rental_id):
     return "", 200
 
 
-@app.patch("/rentals/<int:rental_id>")
-def update_rental(rental_id):
+@bp.patch("/<int:id>")
+def update_rental(id):
     body = request.get_json()
 
     rental_service = RentalService()
 
     success, updated_data = rental_service.update_one_by_id(
-        rental_id,
+        id,
         body
     )
 
@@ -76,19 +66,10 @@ def update_rental(rental_id):
     return jsonify(updated_data), 200
 
 
-@app.get("/rentals/<int:rental_id>/tenants")
+@bp.get("/<int:rental_id>/tenants")
 def get_tenants_by_rental_id(rental_id):
     tenant_service = TenantService()
 
     res = tenant_service.find("rental_id", rental_id)
-
-    return jsonify(res)
-
-
-@app.get("/tenants")
-def get_tenants():
-    tenant_service = TenantService()
-
-    res = tenant_service.get_all()
 
     return jsonify(res)
