@@ -14,14 +14,14 @@ def get_rentals():
     rental_service = RentalService()
 
     if search_word == "house":
-        houses = rental_service.find_by_property_type("house")
+        houses = rental_service.find("property_type", "house")
         return jsonify(houses)
 
     if search_word == "apartment":
-        apartments = rental_service.find_by_property_type("apartment")
+        apartments = rental_service.find("property_type", "apartment")
         return jsonify(apartments)
 
-    res = rental_service.get_all_rentals()
+    res = rental_service.get_all()
 
     return jsonify(res)
 
@@ -32,16 +32,16 @@ def create_rental():
 
     rental_service = RentalService()
 
-    res = rental_service.add_rental(data)
+    res = rental_service.add_one(data)
 
     return jsonify(res), 201
 
 
 @app.delete("/rentals/<int:rental_id>")
-def delete_rental(rental_id):
+def delete_one_by_id(rental_id):
     rental_service = RentalService()
 
-    success = rental_service.delete_rental(rental_id)
+    success = rental_service.delete_one_by_id(rental_id)
 
     if success == False:
         return jsonify({"error": "Resource not found."}), 404
@@ -55,9 +55,15 @@ def update_rental(rental_id):
 
     rental_service = RentalService()
 
-    res = rental_service.update_rental(rental_id, new_data)
+    success, updated_data = rental_service.update_one_by_id(
+        rental_id,
+        new_data
+    )
 
-    return jsonify(res), 200
+    if success == False:
+        return jsonify({"error": "Something wnet wrong."}), 400
+
+    return jsonify(updated_data), 200
 
 
 @app.get("/rentals/<int:rental_id>/tenants")

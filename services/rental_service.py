@@ -16,14 +16,14 @@ class RentalService:
 
         self.__rentals = store["rentals"]
 
-    def find_by_property_type(self, type):
+    def find(self, key, value):
         """ Finds all rentals that match the given property type. """
 
         return [
-            r for r in self.__rentals if r["property_type"] == type
+            r for r in self.__rentals if r.get(key) == value
         ]
 
-    def find_by_id(self, id):
+    def get_one_by_id(self, id):
         """ Finds a rental by its unique ID within a given dataset. """
 
         for i, item in enumerate(self.__rentals):
@@ -31,19 +31,19 @@ class RentalService:
                 return (item, i)
         return None
 
-    def get_all_rentals(self):
+    def get_all(self):
         """ Retrieves all rentals from the datastore. """
 
         return self.__rentals
 
-    def add_rental(self, payload):
+    def add_one(self, payload):
         """ Adds a new rental to the datastore. """
 
         new_rental = {"id": len(self.__rentals) + 1, **payload}
         self.__rentals.append(new_rental)
         return self.__rentals[-1]
 
-    def delete_rental(self, id):
+    def delete_one_by_id(self, id):
         """ Deletes a rental from the datastore by its ID. """
 
         for i, rental in enumerate(self.__rentals):
@@ -52,9 +52,9 @@ class RentalService:
                 return True
         return False
 
-    def update_rental(self, id, payload):
+    def update_one_by_id(self, id, payload):
         """ Updates the details of an existing rental """
-        rental, rentalIdx = self.find_by_id(id)
+        rental, rentalIdx = self.get_one_by_id(id)
 
         if rental is None:
             return (False, None)
