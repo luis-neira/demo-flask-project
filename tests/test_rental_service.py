@@ -49,8 +49,7 @@ def test_add_rental(rental_service):
 def test_find_by_id(rental_service):
     """Test finding a rental by ID."""
 
-    rental, index = rental_service.find_by_id(
-        rental_service.get_all_rentals(), 2)
+    rental, index = rental_service.find_by_id(2)
     assert rental["name"] == "Suburban Home"
     assert index == 1
 
@@ -73,5 +72,4 @@ def test_delete_rental(rental_service):
 
     assert success is True
     assert len(rental_service.get_all_rentals()) == 1
-    assert rental_service.find_by_id(
-        rental_service.get_all_rentals(), 1) is None
+    assert rental_service.find_by_id(1) is None
