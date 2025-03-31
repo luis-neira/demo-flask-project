@@ -9,17 +9,17 @@ app.json.sort_keys = False
 
 @app.get("/rentals")
 def get_rentals():
-    search_word = request.args.get("type")
+    query_by = request.args.get("type")
 
     rental_service = RentalService()
 
     HOUSE, APARTMENT = "house", "apartment"
 
-    if search_word == HOUSE:
+    if query_by == HOUSE:
         houses = rental_service.find("property_type", HOUSE)
         return jsonify(houses)
 
-    if search_word == APARTMENT:
+    if query_by == APARTMENT:
         apartments = rental_service.find("property_type", APARTMENT)
         return jsonify(apartments)
 
@@ -30,11 +30,11 @@ def get_rentals():
 
 @app.post("/rentals")
 def create_rental():
-    data = request.get_json()
+    body = request.get_json()
 
     rental_service = RentalService()
 
-    res = rental_service.add_one(data)
+    res = rental_service.add_one(body)
 
     return jsonify(res), 201
 
@@ -53,13 +53,13 @@ def delete_one_by_id(rental_id):
 
 @app.patch("/rentals/<int:rental_id>")
 def update_rental(rental_id):
-    new_data = request.get_json()
+    body = request.get_json()
 
     rental_service = RentalService()
 
     success, updated_data = rental_service.update_one_by_id(
         rental_id,
-        new_data
+        body
     )
 
     if success == False:
