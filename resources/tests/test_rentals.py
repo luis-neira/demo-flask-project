@@ -78,7 +78,7 @@ class TestRentals:
         assert response.status_code == 404
         assert response.get_json() == {"error": "Resource not found."}
 
-    def test_update_rental(self, client, mocker):
+    def test_update_rental_success(self, client, mocker):
         mocker.patch.object(RentalService, "update_one_by_id", return_value=(
             True, {"id": 1, "property_type": "apartment"}
         ))
@@ -86,6 +86,15 @@ class TestRentals:
             "/rentals/1", json={"property_type": "apartment"})
         assert response.status_code == 200
         assert response.get_json() == {"id": 1, "property_type": "apartment"}
+
+    def test_update_rental_fail(self, client, mocker):
+        mocker.patch.object(RentalService, "update_one_by_id", return_value=(
+            False, None
+        ))
+        response = client.patch(
+            "/rentals/3", json={"property_type": "apartment"})
+        assert response.status_code == 400
+        assert response.get_json() == {"error": "Something wnet wrong."}
 
     def test_get_tenants_by_rental_id(self, client, mocker):
         mocker.patch.object(TenantService, "find", return_value=[
