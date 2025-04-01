@@ -48,10 +48,13 @@ class RentalService:
         return False
 
     def update_one_by_id(self, id: int, payload: Any) -> tuple[bool, Union[None, Rental]]:
-        rental, rentalIdx = self.get_one_by_id(id)
+        # rental, rentalIdx = self.get_one_by_id(id)
+        foundRental = self.get_one_by_id(id)
 
-        if rental is None:
+        if foundRental is None:
             return (False, None)
+
+        rental, rentalIdx = foundRental
 
         updated_rental = cast(Rental, {**rental, **payload})
         self.__rentals[rentalIdx] = updated_rental

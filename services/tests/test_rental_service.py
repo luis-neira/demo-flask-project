@@ -43,17 +43,25 @@ class TestRentalService:
         assert rental["name"] == "Suburban Home", "the rental's name should be Suburban Home"
         assert index == 1, "the element should be at index 1"
 
-    def test_update_one_by_id(self):
+    def test_update_one_by_id_success(self):
         success, updated_rental = self.rental_service.update_one_by_id(
             1,
             {"name": "Modern Loft"}
         )
 
-        assert success is True, "should be True"
+        assert success is True, "should be successful"
         assert updated_rental["name"] == "Modern Loft", "rental's name should be Modern Loft"
 
         rental_name = self.rental_service.get_all()[0]["name"]
         assert rental_name == "Modern Loft", "rental should be updated in store"
+
+    def test_update_one_by_id_fail(self):
+        res = self.rental_service.update_one_by_id(
+            3,
+            {"name": "Modern Loft"}
+        )
+
+        assert res[0] is False, "should be unsuccessful"
 
     def test_delete_one_by_id_success(self):
         success = self.rental_service.delete_one_by_id(1)
