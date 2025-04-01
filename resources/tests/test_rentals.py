@@ -64,12 +64,19 @@ class TestRentals:
         assert response.status_code == 201
         assert response.get_json() == {"id": 3, "property_type": "house"}
 
-    def test_delete_rental_by_id(self, client, mocker):
+    def test_delete_rental_by_id_success(self, client, mocker):
         mocker.patch.object(
             RentalService, "delete_one_by_id", return_value=True)
         response = client.delete("/rentals/1")
         assert response.status_code == 200
         assert response.data == b""
+
+    def test_delete_rental_by_id_fail(self, client, mocker):
+        mocker.patch.object(
+            RentalService, "delete_one_by_id", return_value=False)
+        response = client.delete("/rentals/3")
+        assert response.status_code == 404
+        assert response.get_json() == {"error": "Resource not found."}
 
     def test_update_rental(self, client, mocker):
         mocker.patch.object(RentalService, "update_one_by_id", return_value=(
