@@ -55,7 +55,7 @@ class TestRentalService:
         rental_name = self.rental_service.get_all()[0]["name"]
         assert rental_name == "Modern Loft", "rental should be updated in store"
 
-    def test_delete_one_by_id(self):
+    def test_delete_one_by_id_success(self):
         success = self.rental_service.delete_one_by_id(1)
 
         assert success is True, "should be successful"
@@ -65,3 +65,11 @@ class TestRentalService:
 
         rental = self.rental_service.get_one_by_id(1)
         assert rental is None, "rental should not exist"
+
+    def test_delete_one_by_id_fail(self):
+        success = self.rental_service.delete_one_by_id(3)
+
+        assert success is False, "should be unsuccessful"
+
+        rental_quantity = len(self.rental_service.get_all())
+        assert rental_quantity == 2, "rentals should be unchanged"
