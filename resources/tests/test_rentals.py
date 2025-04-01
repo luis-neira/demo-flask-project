@@ -33,6 +33,28 @@ class TestRentals:
             {"id": 2, "property_type": "apartment"}
         ]
 
+    def test_get_rentals_query_by_house(self, client, mocker):
+        mocker.patch.object(RentalService, "find", return_value=[
+            {"id": 1, "property_type": "house"},
+        ])
+
+        response = client.get("/rentals?type=house")
+        assert response.status_code == 200
+        assert response.get_json() == [
+            {"id": 1, "property_type": "house"},
+        ]
+
+    def test_get_rentals_query_by_apartment(self, client, mocker):
+        mocker.patch.object(RentalService, "find", return_value=[
+            {"id": 2, "property_type": "apartment"},
+        ])
+
+        response = client.get("/rentals?type=apartment")
+        assert response.status_code == 200
+        assert response.get_json() == [
+            {"id": 2, "property_type": "apartment"},
+        ]
+
     def test_create_rental(self, client, mocker):
         mocker.patch.object(RentalService, "add_one", return_value={
             "id": 3, "property_type": "house"
