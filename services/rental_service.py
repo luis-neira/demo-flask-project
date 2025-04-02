@@ -12,8 +12,8 @@ class RentalService:
     """ A service class for managing rental listings. """
 
     def __init__(self):
-        self.conn = get_db().get("conn")
-        self.cursor = get_db().get("cursor")
+        self.conn = get_db().conn
+        self.cursor = get_db().cursor
 
     def exists(self, id):
         q1 = "SELECT * FROM rentals WHERE id = ?"
