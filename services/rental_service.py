@@ -11,9 +11,10 @@ from database import get_db
 class RentalService:
     """ A service class for managing rental listings. """
 
-    def __init__(self):
-        self.conn = get_db().conn
-        self.cursor = get_db().cursor
+    def __init__(self, db=None):
+        self._db = db or get_db()  # Allow passing a mock database
+        self.conn = self._db.conn
+        self.cursor = self._db.cursor
 
     def exists(self, id):
         q1 = "SELECT * FROM rentals WHERE id = ?"

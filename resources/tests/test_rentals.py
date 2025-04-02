@@ -56,13 +56,24 @@ class TestRentals:
         ]
 
     def test_create_rental(self, client, mocker):
+        payload = {
+            "title": "Student Studio",
+            "location": "Paris, FR",
+            "price": 900,
+            "bedrooms": 1,
+            "bathrooms": 1,
+            "property_type": "apartment",
+            "description": "Small but functional studio, great for students or holidays in France's capital !",
+            "image": "https://www.example.com/student-studio.jpg"
+        }
+
         mocker.patch.object(RentalService, "add_one", return_value={
-            "id": 3, "property_type": "house"
+            "id": 3, **payload
         })
 
-        response = client.post("/rentals", json={"property_type": "house"})
+        response = client.post("/rentals", json=payload)
         assert response.status_code == 201
-        assert response.get_json() == {"id": 3, "property_type": "house"}
+        assert response.get_json() == {"id": 3, **payload}
 
     def test_delete_rental_by_id_success(self, client, mocker):
         mocker.patch.object(
@@ -79,22 +90,52 @@ class TestRentals:
         assert response.get_json() == {"error": "Resource not found."}
 
     def test_update_rental_success(self, client, mocker):
+        payload = {
+            "description": "Small but VERY VERY functional studio, great for students or holidays in France's capital !"
+        }
+
         mocker.patch.object(RentalService, "update_one_by_id", return_value=(
-            True, {"id": 1, "property_type": "apartment"}
+            {
+                "id": 1,
+                "title": "Student Studio",
+                "location": "Paris, FR",
+                "price": 900,
+                "bedrooms": 1,
+                "bathrooms": 1,
+                "property_type": "apartment",
+                "description": "Small but VERY VERY functional studio, great for students or holidays in France's capital !",
+                "image": "https://www.example.com/student-studio.jpg"
+            }
         ))
-        response = client.patch(
-            "/rentals/1", json={"property_type": "apartment"})
+
+        response = client.patch("/rentals/1", json=payload)
         assert response.status_code == 200
-        assert response.get_json() == {"id": 1, "property_type": "apartment"}
+        assert response.get_json() == {
+            "id": 1,
+            "title": "Student Studio",
+            "location": "Paris, FR",
+            "price": 900,
+            "bedrooms": 1,
+            "bathrooms": 1,
+            "property_type": "apartment",
+            "description": "Small but VERY VERY functional studio, great for students or holidays in France's capital !",
+            "image": "https://www.example.com/student-studio.jpg"
+        }
 
     def test_update_rental_fail(self, client, mocker):
-        mocker.patch.object(RentalService, "update_one_by_id", return_value=(
-            False, None
-        ))
+        mocker.patch.object(
+            RentalService,
+            "update_one_by_id",
+            return_value=None
+        )
         response = client.patch(
-            "/rentals/3", json={"property_type": "apartment"})
-        assert response.status_code == 400
-        assert response.get_json() == {"error": "Something wnet wrong."}
+            "/rentals/3",
+            json={
+                "description": "Small but VERY VERY functional studio, great for students or holidays in France's capital !"
+            }
+        )
+        assert response.status_code == 500
+        assert response.get_json() == {"error": "Something went wrong."}
 
     def test_get_tenants_by_rental_id(self, client, mocker):
         mocker.patch.object(TenantService, "find", return_value=[

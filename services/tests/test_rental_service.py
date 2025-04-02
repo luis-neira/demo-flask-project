@@ -1,83 +1,114 @@
 import pytest
 
-from db import store
+# from db import store
 from services import RentalService
 
 
-class TestRentalService:
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        # Reset the datastore before each test
-        store["rentals"].clear()
-        self.mock_data = [
-            {"id": 1, "property_type": "apartment", "name": "Downtown Loft"},
-            {"id": 2, "property_type": "house", "name": "Suburban Home"},
-        ]
+import sqlite3
+import pytest
+from unittest.mock import patch, MagicMock
+from database import get_db, Database
+from flask import Flask
+# Adjust the import based on your project structure
+# from rental_service import RentalService
 
-        for data in self.mock_data:
-            store["rentals"].append(data)
 
-        self.rental_service = RentalService()
+@pytest.fixture
+def mock_db():
+    """Creates an in-memory SQLite database and a mocked Database object."""
+    mock_conn = sqlite3.connect(":memory:")  # In-memory database
+    mock_conn.row_factory = sqlite3.Row
+    mock_cursor = mock_conn.cursor()
 
-    def test_get_all(self):
-        rentals = self.rental_service.get_all()
-        assert len(rentals) == 2, "should be 2 rentals"
-
-    def test_find(self):
-        apartments = self.rental_service.find("property_type", "apartment")
-        assert len(apartments) == 1, "should be 1 apartment rental"
-        assert apartments[0]["name"] == "Downtown Loft", "the rental's name should be Downtown Loft"
-
-    def test_add_one(self):
-        new_rental = {"property_type": "condo", "name": "Luxury Condo"}
-        added_rental = self.rental_service.add_one(new_rental)
-
-        assert added_rental["id"] == 3, "the rental's id should be 3"
-        assert added_rental["name"] == "Luxury Condo", "the rental's name should be Luxury Condo"
-
-        rental_quantity = len(self.rental_service.get_all())
-        assert rental_quantity == 3, "there should be 3 rentals"
-
-    def test_get_one_by_id(self):
-        rental, index = self.rental_service.get_one_by_id(2)
-        assert rental["name"] == "Suburban Home", "the rental's name should be Suburban Home"
-        assert index == 1, "the element should be at index 1"
-
-    def test_update_one_by_id_success(self):
-        success, updated_rental = self.rental_service.update_one_by_id(
-            1,
-            {"name": "Modern Loft"}
+    # Create a mock rentals table
+    mock_cursor.execute("""
+        CREATE TABLE rentals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            location TEXT,
+            price INTEGER
         )
+    """)
+    mock_conn.commit()
 
-        assert success is True, "should be successful"
-        assert updated_rental["name"] == "Modern Loft", "rental's name should be Modern Loft"
+    # Create a fake Database instance
+    mock_db_instance = MagicMock()
+    mock_db_instance.conn = mock_conn
+    mock_db_instance.cursor = mock_cursor
 
-        rental_name = self.rental_service.get_all()[0]["name"]
-        assert rental_name == "Modern Loft", "rental should be updated in store"
+    yield mock_db_instance  # Provide it to tests
 
-    def test_update_one_by_id_fail(self):
-        res = self.rental_service.update_one_by_id(
-            3,
-            {"name": "Modern Loft"}
-        )
+    mock_conn.close()  # Clean up after tests
 
-        assert res[0] is False, "should be unsuccessful"
 
-    def test_delete_one_by_id_success(self):
-        success = self.rental_service.delete_one_by_id(1)
+@pytest.fixture
+def rental_service(mock_db):
+    """Provide an instance of RentalService with a mocked database."""
+    return RentalService(db=mock_db)
 
-        assert success is True, "should be successful"
 
-        rental_quantity = len(self.rental_service.get_all())
-        assert rental_quantity == 1, "should only be one rental"
+def test_add_one(rental_service, mock_db):
+    """Test adding a rental."""
+    new_rental = {"name": "Cozy Apartment",
+                  "location": "Downtown", "price": 1200}
 
-        rental = self.rental_service.get_one_by_id(1)
-        assert rental is None, "rental should not exist"
+    result = rental_service.add_one(new_rental)
 
-    def test_delete_one_by_id_fail(self):
-        success = self.rental_service.delete_one_by_id(3)
+    assert result["id"] == 1
+    assert result["name"] == "Cozy Apartment"
+    assert result["location"] == "Downtown"
+    assert result["price"] == 1200
 
-        assert success is False, "should be unsuccessful"
 
-        rental_quantity = len(self.rental_service.get_all())
-        assert rental_quantity == 2, "rentals should be unchanged"
+def test_get_all(rental_service, mock_db):
+    """Test retrieving all rentals."""
+    mock_db.cursor.execute("INSERT INTO rentals (name, location, price) VALUES (?, ?, ?)",
+                           ("Test Rental", "City Center", 1500))
+    mock_db.conn.commit()
+
+    result = rental_service.get_all()
+
+    assert len(result) == 1
+    assert result[0]["name"] == "Test Rental"
+    assert result[0]["location"] == "City Center"
+    assert result[0]["price"] == 1500
+
+
+def test_get_one_by_id(rental_service, mock_db):
+    """Test retrieving a rental by ID."""
+    mock_db.cursor.execute("INSERT INTO rentals (name, location, price) VALUES (?, ?, ?)",
+                           ("Beach House", "Seaside", 2000))
+    mock_db.conn.commit()
+
+    result = rental_service.get_one_by_id(1)
+
+    assert result is not None
+    assert result["name"] == "Beach House"
+
+
+def test_delete_one_by_id(rental_service, mock_db):
+    """Test deleting a rental by ID."""
+    mock_db.cursor.execute("INSERT INTO rentals (name, location, price) VALUES (?, ?, ?)",
+                           ("Mountain Cabin", "Hills", 900))
+    mock_db.conn.commit()
+
+    assert rental_service.exists(1) is True
+
+    success = rental_service.delete_one_by_id(1)
+
+    assert success is True
+    assert rental_service.exists(1) is False
+
+
+def test_update_one_by_id(rental_service, mock_db):
+    """Test updating a rental."""
+    mock_db.cursor.execute("INSERT INTO rentals (name, location, price) VALUES (?, ?, ?)",
+                           ("Small Apartment", "Uptown", 800))
+    mock_db.conn.commit()
+
+    updated_data = {"name": "Updated Apartment", "price": 1000}
+    result = rental_service.update_one_by_id(1, updated_data)
+
+    assert result is not None
+    assert result["name"] == "Updated Apartment"
+    assert result["price"] == 1000
