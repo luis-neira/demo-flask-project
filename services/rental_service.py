@@ -5,16 +5,15 @@ This module defines the `RentalService` class, which provides methods for managi
 It interacts with a datastore to perform CRUD operations on rental properties.
 """
 
-import sqlite3
+from database import get_db
 
 
 class RentalService:
     """ A service class for managing rental listings. """
 
     def __init__(self):
-        conn = sqlite3.connect("real-estate.db")
-        self.conn = conn
-        self.cursor = conn.cursor()
+        self.conn = get_db()
+        self.cursor = self.conn.cursor()
 
     def buildResponse(self, rows):
         columns = [column[0] for column in self.cursor.description]

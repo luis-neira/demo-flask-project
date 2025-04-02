@@ -4,6 +4,8 @@ import json
 from sqlalchemy import create_engine
 import os
 
+from database import close_db
+
 db_file = 'real-estate.db'
 echo_logs = not os.path.exists(db_file)
 
@@ -29,5 +31,7 @@ def create_app():
     app.register_blueprint(bp_root)
     app.register_blueprint(bp_rentals, url_prefix="/rentals")
     app.register_blueprint(bp_tenants, url_prefix="/tenants")
+
+    app.teardown_appcontext(close_db)
 
     return app
