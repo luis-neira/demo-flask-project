@@ -3,13 +3,13 @@ from flask import Flask
 
 from resources import bp_rentals
 from services import RentalService, TenantService
+from main import create_app
 
 
 @pytest.fixture(scope="class")
 def app():
-    app = Flask(__name__)
-    app.register_blueprint(bp_rentals, url_prefix="/rentals")
-    app.config["TESTING"] = True
+    app = create_app()
+    app.config.update({"TESTING": True})
     return app
 
 
