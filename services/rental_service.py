@@ -12,7 +12,7 @@ class RentalService:
     """ A service class for managing rental listings. """
 
     def __init__(self, db=None):
-        self._db = db or get_db()  # Allow passing a mock database
+        self._db = db or get_db()
         self.conn = self._db.conn
         self.cursor = self._db.cursor
 
