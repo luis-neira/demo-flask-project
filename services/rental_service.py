@@ -5,9 +5,10 @@ This module defines the `RentalService` class, which provides methods for managi
 It interacts with a datastore to perform CRUD operations on rental properties.
 """
 
-from db import store, Rental
-from typing import Union
 import sqlite3
+from typing import Union, Any
+
+Rental = dict[str, Any]
 
 
 class RentalService:
@@ -18,7 +19,7 @@ class RentalService:
         self.conn = conn
         self.cursor = conn.cursor()
 
-    def buildResponse(self, rows):
+    def buildResponse(self, rows: list[Any]) -> list[Rental]:
         columns = [column[0] for column in self.cursor.description]
         response = []
 
@@ -27,7 +28,7 @@ class RentalService:
 
         return response
 
-    def exists(self, id):
+    def exists(self, id: int) -> bool:
         q1 = "SELECT * FROM rentals WHERE id = ?"
         res = self.cursor.execute(q1, (id,)).fetchone()
         return res is not None
