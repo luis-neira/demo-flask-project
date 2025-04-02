@@ -15,15 +15,6 @@ class RentalService:
         self.conn = get_db().get("conn")
         self.cursor = get_db().get("cursor")
 
-    def buildResponse(self, rows):
-        columns = [column[0] for column in self.cursor.description]
-        response = []
-
-        for row in rows:
-            response.append(dict(zip(columns, row)))
-
-        return response
-
     def exists(self, id):
         q1 = "SELECT * FROM rentals WHERE id = ?"
         res = self.cursor.execute(q1, (id,)).fetchone()
@@ -32,26 +23,23 @@ class RentalService:
     def find(self, key, value):
         query = f"SELECT * from rentals WHERE {key} == ?"
         rows = self.cursor.execute(query, (value, )).fetchall()
-        return self.buildResponse(rows)
+        rentals = [dict(row) for row in rows]
+        return rentals
 
     def get_one_by_id(self, id):
         q2 = "SELECT * FROM rentals WHERE id = ?"
-        rows = self.cursor.execute(q2, (id, )).fetchone()
+        row = self.cursor.execute(q2, (id, )).fetchone()
 
-        if rows is None:
+        if row is None:
             return None
 
-        res = self.buildResponse([rows])
-
-        if len(res) > 0:
-            return res[0]
-
-        return None
+        return dict(row)
 
     def get_all(self):
         query = "SELECT * FROM rentals"
         rows = self.cursor.execute(query).fetchall()
-        return self.buildResponse(rows)
+        rentals = [dict(row) for row in rows]
+        return rentals
 
     def add_one(self, payload):
         record_count = self.cursor.execute(
@@ -72,9 +60,8 @@ class RentalService:
         inserted_id = self.cursor.lastrowid
 
         q2 = "SELECT * FROM rentals WHERE id = ?"
-        rows = self.cursor.execute(q2, (inserted_id, )).fetchone()
-        res = self.buildResponse([rows])
-        return res[0]
+        row = self.cursor.execute(q2, (inserted_id, )).fetchone()
+        return dict(row)
 
     def delete_one_by_id(self, id):
         exists = self.exists(id)
