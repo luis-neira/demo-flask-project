@@ -1,6 +1,5 @@
 import pytest
 
-# from db import store
 from services import RentalService
 
 
@@ -9,8 +8,6 @@ import pytest
 from unittest.mock import patch, MagicMock
 from database import get_db, Database
 from flask import Flask
-# Adjust the import based on your project structure
-# from rental_service import RentalService
 
 
 @pytest.fixture
