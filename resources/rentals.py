@@ -55,12 +55,12 @@ def update_rental(id):
 
     rental_service = RentalService()
 
-    success, updated_data = rental_service.update_one_by_id(
+    updated_data = rental_service.update_one_by_id(
         id,
         body
     )
 
-    if success == False:
+    if updated_data is None:
         return jsonify({"error": "Something wnet wrong."}), 400
 
     return jsonify(updated_data), 200

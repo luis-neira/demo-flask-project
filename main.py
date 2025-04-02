@@ -1,4 +1,18 @@
 from flask import Flask
+import pandas as pd
+import json
+from sqlalchemy import create_engine
+
+# Load JSON file in pandas dataframe and create SQLite database
+with open("data.json", "r") as file:
+    data = json.load(file)
+
+df = pd.DataFrame(data["rentals"])
+engine = create_engine('sqlite:///real-estate.db', echo=True)
+df.to_sql('rentals', con=engine, if_exists='replace', index=False)
+
+df2 = pd.DataFrame(data["tenants"])
+df2.to_sql('tenants', con=engine, if_exists='replace', index=False)
 
 
 def create_app():
