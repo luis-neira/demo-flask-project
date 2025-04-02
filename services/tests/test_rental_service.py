@@ -1,13 +1,8 @@
-import pytest
-
-from services import RentalService
-
-
 import sqlite3
 import pytest
-from unittest.mock import patch, MagicMock
-from database import get_db, Database
-from flask import Flask
+from unittest.mock import MagicMock
+
+from services import RentalService
 
 
 @pytest.fixture
