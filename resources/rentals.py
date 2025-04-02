@@ -1,6 +1,19 @@
 from flask import Blueprint, request, jsonify
+from marshmallow import Schema, fields, ValidationError
 
 from services import RentalService, TenantService
+
+
+class RentalSchema(Schema):
+    title = fields.Str(required=True)
+    location = fields.Str(required=True)
+    price = fields.Int(required=True)
+    bedrooms = fields.Int(required=True)
+    bathrooms = fields.Int(required=True)
+    property_type = fields.Str(required=True)
+    description = fields.Str(required=True)
+    image = fields.Str(required=True)
+
 
 bp = Blueprint('rentals', __name__)
 
@@ -28,13 +41,17 @@ def get_rentals():
 
 @bp.post("")
 def create_rental():
-    body = request.get_json()
+    try:
+        body = request.get_json()
 
-    rental_service = RentalService()
+        validated = RentalSchema().load(body)
 
-    res = rental_service.add_one(body)
+        rental_service = RentalService()
+        res = rental_service.add_one(validated)
 
-    return jsonify(res), 201
+        return jsonify(res), 201
+    except ValidationError as err:
+        return jsonify({"error": "Invalid data", "fields": err.messages}), 400
 
 
 @bp.delete("/<int:id>")
@@ -61,7 +78,7 @@ def update_rental(id):
     )
 
     if updated_data is None:
-        return jsonify({"error": "Something wnet wrong."}), 400
+        return jsonify({"error": "Something went wrong."}), 400
 
     return jsonify(updated_data), 200
 
