@@ -12,8 +12,8 @@ class RentalService:
     """ A service class for managing rental listings. """
 
     def __init__(self):
-        self.conn = get_db()
-        self.cursor = self.conn.cursor()
+        self.conn = get_db().get("conn")
+        self.cursor = get_db().get("cursor")
 
     def buildResponse(self, rows):
         columns = [column[0] for column in self.cursor.description]

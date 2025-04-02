@@ -6,7 +6,11 @@ def get_db():
     """Get a database connection that lasts for the request."""
 
     if "db" not in g:
-        g.db = sqlite3.connect("real-estate.db")
+        conn = sqlite3.connect("real-estate.db")
+        g.db = {
+            "conn": conn,
+            "cursor": conn.cursor()
+        }
         # g.db.row_factory = sqlite3.Row  # Enables dict-like row access
     return g.db
 
@@ -17,4 +21,5 @@ def close_db(e=None):
     db = g.pop("db", None)
 
     if db is not None:
-        db.close()
+        db.get("cursor").close()
+        db.get("conn").close()
