@@ -6,9 +6,6 @@ It interacts with a datastore to perform CRUD operations on rental properties.
 """
 
 import sqlite3
-from typing import Union, Any
-
-Rental = dict[str, Any]
 
 
 class RentalService:
@@ -19,7 +16,7 @@ class RentalService:
         self.conn = conn
         self.cursor = conn.cursor()
 
-    def buildResponse(self, rows: list[Any]) -> list[Rental]:
+    def buildResponse(self, rows):
         columns = [column[0] for column in self.cursor.description]
         response = []
 
@@ -28,17 +25,17 @@ class RentalService:
 
         return response
 
-    def exists(self, id: int) -> bool:
+    def exists(self, id):
         q1 = "SELECT * FROM rentals WHERE id = ?"
         res = self.cursor.execute(q1, (id,)).fetchone()
         return res is not None
 
-    def find(self, key: str, value: Union[int, str]) -> list[Rental]:
+    def find(self, key, value):
         query = f"SELECT * from rentals WHERE {key} == ?"
         rows = self.cursor.execute(query, (value, )).fetchall()
         return self.buildResponse(rows)
 
-    def get_one_by_id(self, id: int) -> Union[Rental, None]:
+    def get_one_by_id(self, id):
         q2 = "SELECT * FROM rentals WHERE id = ?"
         rows = self.cursor.execute(q2, (id, )).fetchone()
 
@@ -52,12 +49,12 @@ class RentalService:
 
         return None
 
-    def get_all(self) -> list[Rental]:
+    def get_all(self):
         query = "SELECT * FROM rentals"
         rows = self.cursor.execute(query).fetchall()
         return self.buildResponse(rows)
 
-    def add_one(self, payload) -> Rental:
+    def add_one(self, payload):
         record_count = self.cursor.execute(
             "SELECT COUNT(*) FROM rentals"
         ).fetchone()[0]
@@ -80,7 +77,7 @@ class RentalService:
         res = self.buildResponse([rows])
         return res[0]
 
-    def delete_one_by_id(self, id: int) -> bool:
+    def delete_one_by_id(self, id):
         exists = self.exists(id)
 
         if not exists:
@@ -95,7 +92,7 @@ class RentalService:
 
         return False
 
-    def update_one_by_id(self, id: int, payload) -> Union[Rental, None]:
+    def update_one_by_id(self, id, payload):
         foundRental = self.get_one_by_id(id)
 
         if foundRental is None:
