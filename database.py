@@ -15,7 +15,7 @@ def get_db():
     return g.db
 
 
-def close_db():
+def close_db(e=None):
     """ Close the database connection at the end of the request. """
 
     db = g.pop("db", None)

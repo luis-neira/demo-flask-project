@@ -87,8 +87,8 @@ class RentalService:
         updated_rental = {**foundRental, **payload}
         set_clause = ", ".join([f"{key} = ?" for key in updated_rental.keys()])
 
-        query = f"UPDATE rentals SET {set_clause} WHERE id = {id}"
-        self.cursor.execute(query, tuple(updated_rental.values()))
+        query = f"UPDATE rentals SET {set_clause} WHERE id = ?"
+        self.cursor.execute(query, tuple(updated_rental.values()) + (id,))
         self.conn.commit()
 
         if self.cursor.rowcount > 0:
