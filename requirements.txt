@@ -8,3 +8,5 @@ pytest==8.3.4
 pytest-mock
 coverage
 marshmallow
+langchain
+langchain-ollama==0.2.0

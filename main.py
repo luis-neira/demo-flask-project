@@ -26,11 +26,12 @@ def create_app():
 
     app.json.sort_keys = False
 
-    from resources import bp_rentals, bp_tenants, bp_root
+    from resources import bp_rentals, bp_tenants, bp_root, bp_chat
 
     app.register_blueprint(bp_root)
     app.register_blueprint(bp_rentals, url_prefix="/rentals")
     app.register_blueprint(bp_tenants, url_prefix="/tenants")
+    app.register_blueprint(bp_chat, url_prefix="/chat")
 
     app.teardown_appcontext(close_db)
 
